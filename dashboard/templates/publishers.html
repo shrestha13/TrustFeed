@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}— Publishers{% endblock %}
+{% block page_title %}Publisher Management{% endblock %}
+{% block content %}
+
+<div class="grid grid-2">
+  <div class="card">
+    <div class="card-title">Issue New Publisher Certificate</div>
+    <form method="POST" action="{{ url_for('issue_publisher') }}">
+      <div class="form-group">
+        <label>Publisher ID</label>
+        <input type="text" name="publisher_id" placeholder="e.g. npcert-01" required>
+      </div>
+      <div class="form-group">
+        <label>Display Name</label>
+        <input type="text" name="name" placeholder="e.g. NPCERT Nepal" required>
+      </div>
+      <div class="form-group">
+        <label>Trust Tier</label>
+        <select name="tier">
+          <option value="1">Tier 1 — Government / CERT</option>
+          <option value="2" selected>Tier 2 — SOC / Enterprise</option>
+          <option value="3">Tier 3 — Community</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary">⊕ Issue Certificate</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Registered Publishers ({{ publishers|length }})</div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>ID</th><th>Name</th><th>Tier</th><th>Status</th><th>Action</th></tr></thead>
+        <tbody>
+        {% for p in publishers %}
+          <tr>
+            <td class="mono">{{ p.publisher_id }}</td>
+            <td>{{ p.name }}</td>
+            <td><span class="badge badge-blue">T{{ p.tier }}</span></td>
+            <td>
+              {% if p.is_active %}
+                <span class="badge badge-green">active</span>
+              {% else %}
+                <span class="badge badge-red">revoked</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if p.is_active %}
+                <form method="POST" action="{{ url_for('revoke_publisher', publisher_id=p.publisher_id) }}" style="display:inline">
+                  <button type="submit" class="btn btn-danger btn-sm"
+                    onclick="return confirm('Revoke {{ p.publisher_id }}?')">Revoke</button>
+                </form>
+              {% endif %}
+            </td>
+          </tr>
+        {% else %}
+          <tr><td colspan="5" class="text-muted" style="text-align:center;padding:24px">No publishers yet.</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

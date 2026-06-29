@@ -1,0 +1,21 @@
+# TrustFeed — dependency list
+# All algorithms traceable to technical diagram
+
+# Core crypto — all primitives (Ed25519, AES-256-GCM, RSA-OAEP, X.509)
+cryptography>=42.0.0
+
+# IOC schema validation
+pydantic>=2.0.0
+
+# CLI interface
+click>=8.1.0
+
+# Web dashboard
+flask>=3.0.0
+
+# STIX 2.1 export
+stix2>=3.0.0
+
+# Testing
+pytest>=8.0.0
+pytest-cov>=5.0.0

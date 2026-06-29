@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}— Audit Log{% endblock %}
+{% block page_title %}Audit Log{% endblock %}
+{% block content %}
+
+<div class="card">
+  <div class="card-title">IOC History ({{ iocs|length }} total)</div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>IOC ID</th><th>Type</th><th>Value</th><th>Publisher</th><th>Timestamp</th><th>Status</th></tr></thead>
+      <tbody>
+      {% for ioc in iocs %}
+        <tr>
+          <td class="mono" style="font-size:11px">{{ ioc.ioc_id[:16] }}...</td>
+          <td><span class="badge badge-blue">{{ ioc.type }}</span></td>
+          <td class="mono">{{ ioc.value }}</td>
+          <td class="mono">{{ ioc.publisher_id }}</td>
+          <td class="mono text-muted">{{ ioc.timestamp[:19].replace('T',' ') }}</td>
+          <td>
+            {% if ioc.status == 'active' %}
+              <span class="badge badge-green">active</span>
+            {% elif ioc.status == 'retracted' %}
+              <span class="badge badge-red">retracted</span>
+            {% else %}
+              <span class="badge badge-gray">{{ ioc.status }}</span>
+            {% endif %}
+          </td>
+        </tr>
+      {% else %}
+        <tr><td colspan="6" class="text-muted" style="text-align:center;padding:32px">No IOCs yet.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% if retractions %}
+<div class="card mt-16">
+  <div class="card-title">Retraction Log ({{ retractions|length }})</div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Retraction ID</th><th>IOC ID</th><th>Publisher</th><th>Reason</th><th>Timestamp</th></tr></thead>
+      <tbody>
+      {% for r in retractions %}
+        <tr>
+          <td class="mono" style="font-size:11px">{{ r.retraction_id[:16] }}...</td>
+          <td class="mono" style="font-size:11px">{{ r.ioc_id[:16] }}...</td>
+          <td class="mono">{{ r.publisher_id }}</td>
+          <td>{{ r.reason }}</td>
+          <td class="mono text-muted">{{ r.timestamp[:19].replace('T',' ') }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+
+{% endblock %}

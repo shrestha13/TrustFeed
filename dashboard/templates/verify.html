@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}— Verify Bundle{% endblock %}
+{% block page_title %}Verify Bundle{% endblock %}
+{% block content %}
+
+<div class="grid grid-2">
+  <div class="card">
+    <div class="card-title">Verify .tfb Bundle</div>
+    <form method="POST">
+      <div class="form-group">
+        <label>Bundle File Path</label>
+        <input type="text" name="bundle_path" placeholder="data/feeds/abc123.tfb" required>
+      </div>
+      <button type="submit" class="btn btn-primary">✓ Verify Bundle</button>
+    </form>
+  </div>
+
+  {% if result %}
+  <div class="card">
+    <div class="card-title">Verification Result</div>
+    {% if result.error %}
+      <div class="alert alert-error">Bundle rejected: {{ result.error }}</div>
+    {% else %}
+      <table style="margin-bottom:16px">
+        <tr><td class="text-muted">Publisher</td><td class="mono">{{ result.publisher_id }}</td></tr>
+        <tr><td class="text-muted">Total IOCs</td><td>{{ result.total }}</td></tr>
+        <tr><td class="text-muted">Accepted</td><td class="text-green">{{ result.accepted }}</td></tr>
+        <tr><td class="text-muted">Rejected</td><td class="text-red">{{ result.rejected }}</td></tr>
+      </table>
+      {% for r in result.ioc_results %}
+        <div style="padding:10px 12px;border-radius:6px;margin-bottom:8px;border:1px solid var(--border);background:{% if r.passed %}rgba(34,197,94,0.05){% else %}rgba(239,68,68,0.05){% endif %}">
+          <div class="flex justify-between items-center">
+            <span class="mono" style="font-size:12px">{{ r.type }} — {{ r.value }}</span>
+            {% if r.passed %}
+              <span class="badge badge-green">✓ accepted</span>
+            {% else %}
+              <span class="badge badge-red">✗ rejected</span>
+            {% endif %}
+          </div>
+          {% if not r.passed %}
+            <div style="font-size:11px;color:var(--red);margin-top:6px">{{ r.step }}: {{ r.reason }}</div>
+          {% endif %}
+        </div>
+      {% endfor %}
+    {% endif %}
+  </div>
+  {% else %}
+  <div class="card">
+    <div class="card-title">Verification pipeline</div>
+    <div style="font-size:13px;line-height:1.8;color:var(--muted)">
+      <p>① Decrypt bundle (RSA-OAEP + AES-256-GCM)</p>
+      <p>② Validate publisher certificate chain → CA</p>
+      <p>③ Verify Ed25519 signature on each IOC</p>
+      <p>④ Check nonce — replay attack detection</p>
+      <p>⑤ Check expiry timestamp</p>
+      <p>⑥ Check retraction status</p>
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+{% endblock %}

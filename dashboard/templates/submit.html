@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}— Submit IOC{% endblock %}
+{% block page_title %}Submit IOC{% endblock %}
+{% block content %}
+
+<div class="grid grid-2">
+  <div class="card">
+    <div class="card-title">New IOC Submission</div>
+    <form method="POST">
+      <div class="form-group">
+        <label>Publisher (Analyst)</label>
+        <select name="publisher_id" required>
+          {% for p in publishers %}
+            <option value="{{ p.publisher_id }}">{{ p.publisher_id }} — {{ p.name }} (Tier {{ p.tier }})</option>
+          {% else %}
+            <option disabled>No active publishers — issue one first</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group">
+        <label>IOC Type</label>
+        <select name="type" required>
+          <option value="ipv4">IPv4 Address</option>
+          <option value="domain">Domain</option>
+          <option value="url">URL</option>
+          <option value="hash">File Hash</option>
+          <option value="email">Email Address</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>IOC Value</label>
+        <input type="text" name="value" placeholder="e.g. 185.220.101.45" required>
+      </div>
+      <div class="form-group">
+        <label>Severity</label>
+        <select name="severity">
+          <option value="critical">Critical</option>
+          <option value="high" selected>High</option>
+          <option value="medium">Medium</option>
+          <option value="low">Low</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>TTL (seconds)</label>
+        <input type="number" name="ttl" value="86400" min="60">
+      </div>
+      <button type="submit" class="btn btn-primary">＋ Sign and Submit IOC</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <div class="card-title">What happens on submission</div>
+    <div style="font-size:13px;line-height:1.8;color:var(--muted)">
+      <p>① Publisher certificate is validated against the TrustFeed CA</p>
+      <p class="mt-8">② A 96-bit random nonce is generated and attached to the IOC</p>
+      <p class="mt-8">③ The IOC is serialized to canonical JSON (sorted keys, no whitespace)</p>
+      <p class="mt-8">④ Ed25519 signs the canonical bytes using the publisher's private key</p>
+      <p class="mt-8">⑤ The signed IOC is stored in the verified IOC store (SQLite)</p>
+      <p class="mt-8">⑥ A .tfb bundle is written to <code>data/feeds/</code></p>
+    </div>
+    <div class="mt-16" style="background:rgba(26,111,212,0.08);border:1px solid var(--border);border-radius:6px;padding:14px;font-size:12px;color:var(--muted)">
+      Algorithm: <span style="color:var(--blue-lt)">Ed25519</span> signature over
+      <span style="color:var(--blue-lt)">SHA-256</span> canonical bytes.<br>
+      Every field — value, severity, nonce, timestamp — is part of the signed payload.
+      Any modification invalidates the signature.
+    </div>
+  </div>
+</div>
+
+{% endblock %}

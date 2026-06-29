@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}— IOC Feed{% endblock %}
+{% block page_title %}IOC Feed{% endblock %}
+{% block content %}
+
+<div class="card">
+  <div class="flex justify-between items-center" style="margin-bottom:16px">
+    <div class="card-title" style="margin:0">All IOCs ({{ iocs|length }})</div>
+    <div class="flex gap-8">
+      <a href="{{ url_for('export', fmt='json') }}" class="btn btn-warning btn-sm">↓ JSON</a>
+      <a href="{{ url_for('export', fmt='csv') }}"  class="btn btn-warning btn-sm">↓ CSV</a>
+      <a href="{{ url_for('export', fmt='stix') }}" class="btn btn-warning btn-sm">↓ STIX</a>
+    </div>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Type</th><th>Value</th><th>Severity</th><th>Publisher</th><th>Timestamp</th><th>Status</th><th>Action</th></tr>
+      </thead>
+      <tbody>
+      {% for ioc in iocs %}
+        <tr>
+          <td><span class="badge badge-blue">{{ ioc.type }}</span></td>
+          <td class="mono">{{ ioc.value }}</td>
+          <td><span class="sev-{{ ioc.severity }}">{{ ioc.severity }}</span></td>
+          <td class="mono">{{ ioc.publisher_id }}</td>
+          <td class="mono text-muted">{{ ioc.timestamp[:19].replace('T',' ') }}</td>
+          <td>
+            {% if ioc.status == 'active' %}
+              <span class="badge badge-green">active</span>
+            {% elif ioc.status == 'retracted' %}
+              <span class="badge badge-red">retracted</span>
+            {% else %}
+              <span class="badge badge-gray">{{ ioc.status }}</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if ioc.status == 'active' %}
+              <a href="{{ url_for('retract') }}" class="btn btn-danger btn-sm">Retract</a>
+            {% endif %}
+          </td>
+        </tr>
+      {% else %}
+        <tr><td colspan="7" class="text-muted" style="text-align:center;padding:32px">No IOCs in store yet.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}
